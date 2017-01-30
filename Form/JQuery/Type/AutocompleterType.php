@@ -12,11 +12,13 @@
 namespace Genemu\Bundle\FormBundle\Form\JQuery\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\Tests\Extension\Core\Type\TextTypeTest;
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use Genemu\Bundle\FormBundle\Form\Core\ChoiceList\AjaxSimpleChoiceList;
 use Genemu\Bundle\FormBundle\Form\Core\DataTransformer\ChoiceToJsonTransformer;
@@ -38,12 +40,13 @@ class AutocompleterType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $builder->resetViewTransformers();
         $builder->addViewTransformer(new ChoiceToJsonTransformer(
-            $options['choice_list'],
-            $options['ajax'],
-            $this->widget,
-            $options['multiple']
-        ));
+                                         $options['choice_list'],
+                                         $options['ajax'],
+                                         $this->widget,
+                                         $options['multiple']
+                                     ));
     }
 
     /**
@@ -71,46 +74,42 @@ class AutocompleterType extends AbstractType
         ));
 
         // Adds a custom block prefix
-        array_splice(
-            $view->vars['block_prefixes'],
-            array_search($this->getName(), $view->vars['block_prefixes']),
-            0,
-            'genemu_jqueryautocompleter'
-        );
+        $view->vars['block_prefixes'][] = 'genemu_jqueryautocompleter';
+
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $widget = $this->widget;
 
         $resolver->setDefaults(array(
-            'route_name' => null,
-            'ajax' => function (Options $options, $previousValue) {
-                if (!empty($options['route_name']) || $options['free_values']) {
-                    return true;
-                }
+                                   'route_name' => null,
+                                   'ajax' => function (Options $options, $previousValue) {
+                                       if (!empty($options['route_name']) || $options['free_values']) {
+                                           return true;
+                                       }
 
-                return false;
-            },
-            'choice_list' => function (Options $options, $previousValue) use ($widget) {
-                if (!in_array($widget, array('entity', 'document', 'model'))) {
-                    return new AjaxSimpleChoiceList($options['choices'], $options['ajax']);
-                }
+                                       return false;
+                                   },
+                                   'choice_list' => function (Options $options, $previousValue) use ($widget) {
+                                       if (!in_array($widget, array('entity', 'document', 'model'))) {
+                                           return new AjaxSimpleChoiceList($options['choices'], $options['ajax']);
+                                       }
 
-                return $previousValue;
-            },
-            'freeValues' => false,
-            'free_values' => function (Options $options, $previousValue) {
-                if ($options['multiple']) {
-                    return false;
-                }
+                                       return $previousValue;
+                                   },
+                                   'freeValues' => false,
+                                   'free_values' => function (Options $options, $previousValue) {
+                                       if ($options['multiple']) {
+                                           return false;
+                                       }
 
-                return $options['freeValues'] ?: $previousValue;
-            }
-        ));
+                                       return $options['freeValues'] ?: $previousValue;
+                                   }
+                               ));
     }
 
     /**
@@ -121,7 +120,6 @@ class AutocompleterType extends AbstractType
         if (in_array($this->widget, array('entity', 'document', 'model'), true)) {
             return 'genemu_ajax' . $this->widget;
         }
-
         return $this->widget;
     }
 

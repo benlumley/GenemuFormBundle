@@ -11,14 +11,14 @@
 
 namespace Genemu\Bundle\FormBundle\Form\Core\ChoiceList;
 
-use Symfony\Component\Form\Extension\Core\ChoiceList\SimpleChoiceList;
+use Symfony\Component\Form\ChoiceList\ArrayChoiceList;
 
 /**
  * AjaxArrayChoiceList
  *
  * @author Olivier Chauvel <olivier@generation-multiple.com>
  */
-class AjaxSimpleChoiceList extends SimpleChoiceList
+class AjaxSimpleChoiceList extends ArrayChoiceList
 {
     private $ajax;
 
@@ -42,7 +42,7 @@ class AjaxSimpleChoiceList extends SimpleChoiceList
      */
     public function getChoices()
     {
-        $choices = parent::getRemainingViews();
+        $choices = []; //parent::getChoices();
 
         $array = array();
         foreach ($choices as $choice) {
@@ -67,14 +67,13 @@ class AjaxSimpleChoiceList extends SimpleChoiceList
         $intersect = array();
 
         if ($this->ajax) {
-            foreach ($values as $value) {
-                $key = array_search($value, $this->ajaxChoices);
-                if ($key) {
-                    $intersect[] = array(
-                        'value' => $key,
-                        'label' => $value,
-                    );
-                }
+            foreach ($this->ajaxChoices as $key => $value) {
+
+                $intersect[] = array(
+                    'value' => $key,
+                    'label' => $value,
+                );
+
             }
         } else {
             foreach ($this->getChoices() as $choice) {

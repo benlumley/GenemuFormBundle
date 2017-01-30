@@ -11,9 +11,10 @@
 
 namespace Genemu\Bundle\FormBundle\Form\Core\DataTransformer;
 
+use Genemu\Bundle\FormBundle\Form\Core\ChoiceList\AjaxSimpleChoiceList;
+use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\Extension\Core\ChoiceList\ChoiceListInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
 /**
@@ -34,7 +35,7 @@ class ChoiceToJsonTransformer implements DataTransformerInterface
      * @param ArrayChoiceList $choiceList
      * @param boolean         $ajax
      */
-    public function __construct(ChoiceListInterface $choiceList, $ajax = false, $widget = 'choice', $multiple = false)
+    public function __construct(AjaxSimpleChoiceList $choiceList, $ajax = false, $widget = 'choice', $multiple = false)
     {
         $this->choiceList = $choiceList;
         $this->ajax = $ajax;
@@ -47,9 +48,9 @@ class ChoiceToJsonTransformer implements DataTransformerInterface
      */
     public function transform($choices)
     {
-        if (empty($choices)) {
-            return;
-        }
+//        if (empty($choices)) {
+//            return;
+//        }
 
         if (is_scalar($choices)) {
             $choices = array($choices);
@@ -74,7 +75,7 @@ class ChoiceToJsonTransformer implements DataTransformerInterface
     public function reverseTransform($json)
     {
         $choices = json_decode(is_array($json) ? current($json) : $json, true);
-        
+
         // Single choice list
         if (!$this->multiple) {
 
@@ -116,9 +117,11 @@ class ChoiceToJsonTransformer implements DataTransformerInterface
 
     private function addAjaxChoices(&$choices)
     {
+
         if ($this->ajax && !in_array($this->widget, array('entity', 'document', 'model'))) {
             $this->choiceList->addAjaxChoice($choices);
         }
+
     }
 
     /**
