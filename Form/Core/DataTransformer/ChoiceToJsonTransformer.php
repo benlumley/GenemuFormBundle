@@ -48,9 +48,9 @@ class ChoiceToJsonTransformer implements DataTransformerInterface
      */
     public function transform($choices)
     {
-//        if (empty($choices)) {
-//            return;
-//        }
+        if (empty($choices)) {
+            $choices = [];
+        }
 
         if (is_scalar($choices)) {
             $choices = array($choices);
